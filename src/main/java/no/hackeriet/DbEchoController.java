@@ -1,4 +1,4 @@
-package hello;
+package no.hackeriet;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collector;
