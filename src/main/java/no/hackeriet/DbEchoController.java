@@ -1,7 +1,9 @@
 package no.hackeriet;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import jdk.incubator.sql2.AdbaType;
 import jdk.incubator.sql2.DataSource;
 import jdk.incubator.sql2.DataSourceFactory;
@@ -27,24 +29,15 @@ public class DbEchoController {
 
     }
 
-    private static <T> Collector<RowColumn, T[], T> singleCollector(Class<T> clazz) {
-        return Collector.of(
-            () -> (T[])new Object[1],
-            (a, r) -> a[0] = r.at("t").get(clazz),
-            (l, r) -> null,
-            a -> a[0]);
-    }
-
-
     @RequestMapping("/{val}")
     public CompletableFuture<String> index(@PathVariable("val") String val) {
         try (Session session = ds.getSession()) {
-            Submission<String> sub = session.<String>rowOperation("select $1 as t")
+            Submission<List<RowColumn>> sub = session.<List<RowColumn>>rowOperation("select $1 as t")
                 .set("$1", val, AdbaType.VARCHAR)
-                .collect(singleCollector(String.class))
+                .collect(Collectors.toList())
                 .submit();
 
-            return sub.getCompletionStage().toCompletableFuture();
+            return sub.getCompletionStage().thenApply(rc -> rc.get(0).at("t").get(String.class)).toCompletableFuture();
         }
     }
 }
