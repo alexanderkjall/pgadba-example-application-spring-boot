@@ -20,7 +20,7 @@ public class DbEchoController {
     private final DataSource ds;
 
     public DbEchoController() {
-        ds = DataSourceFactory.newFactory("org.postgresql.sql2.PgDataSourceFactory")
+        ds = DataSourceFactory.newFactory("org.postgresql.adba.PgDataSourceFactory")
             .builder()
             .url("jdbc:postgresql://localhost:5432/test")
             .username("test")

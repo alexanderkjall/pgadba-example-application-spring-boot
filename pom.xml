@@ -29,7 +29,7 @@
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
-            <artifactId>pgsql2</artifactId>
+            <artifactId>pgadba</artifactId>
             <version>0.1.0-ALPHA</version>
         </dependency>
     </dependencies>
