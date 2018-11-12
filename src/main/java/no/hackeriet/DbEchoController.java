@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RestController
 public class DbEchoController {
     private final DataSource ds;
+    private final Session session;
 
     public DbEchoController() {
         ds = DataSourceFactory.newFactory("org.postgresql.adba.PgDataSourceFactory")
@@ -27,17 +28,16 @@ public class DbEchoController {
             .password("test")
             .build();
 
+        session = ds.getSession();
     }
 
     @RequestMapping("/{val}")
     public CompletableFuture<String> index(@PathVariable("val") String val) {
-        try (Session session = ds.getSession()) {
-            Submission<List<RowColumn>> sub = session.<List<RowColumn>>rowOperation("select $1 as t")
-                .set("$1", val, AdbaType.VARCHAR)
-                .collect(Collectors.toList())
-                .submit();
+        Submission<List<RowColumn>> sub = session.<List<RowColumn>>rowOperation("select $1 as t")
+            .set("$1", val, AdbaType.VARCHAR)
+            .collect(Collectors.toList())
+            .submit();
 
-            return sub.getCompletionStage().thenApply(rc -> rc.get(0).at("t").get(String.class)).toCompletableFuture();
-        }
+        return sub.getCompletionStage().thenApply(rc -> rc.get(0).at("t").get(String.class)).toCompletableFuture();
     }
 }
